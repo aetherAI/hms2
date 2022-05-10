@@ -1,0 +1,43 @@
+RESULT_DIR: "results/result_Camelyon16_5x"
+MODEL_PATH: "${RESULT_DIR}/model.pt"
+OPTIMIZER_STATE_PATH: "${RESULT_DIR}/opt_state.pt"
+STATES_PATH: "${RESULT_DIR}/states.pt"
+LOAD_MODEL_BEFORE_TRAIN: False
+CONFIG_RECORD_PATH: "${RESULT_DIR}/config.yaml"
+
+USE_MIXED_PRECISION: False
+USE_HMS2: True
+
+TRAIN_CSV_PATH: "projects/Camelyon16/datalists/train.csv"
+VAL_CSV_PATH: "projects/Camelyon16/datalists/val.csv"
+TEST_CSV_PATH: "projects/Camelyon16/datalists/test.csv"
+CONTOUR_DIR: "projects/Camelyon16/contours"
+SLIDE_DIR: "projects/Camelyon16/slides"
+SLIDE_FILE_EXTENSION: ".tif"
+SLIDE_READER: "openslide"
+RESIZE_RATIO: 0.125
+INPUT_SIZE: [40000, 40000, 3]
+GPU_AUGMENTS: ["flip", "rigid", "hed_perturb"]
+AUGMENTS: []
+
+MODEL: "resnet50_frozenbn"
+POOL_USE: "gmp_scaled_2k"
+NUM_CLASSES: 2
+BATCH_SIZE: 1
+EPOCHS: 200
+LOSS: "ce"
+METRIC_LIST: ["accuracy"]
+OPTIMIZER: "adamw"
+INIT_LEARNING_RATE: 0.00001
+REDUCE_LR_FACTOR: 0.1
+REDUCE_LR_PATIENCE: 8
+TIME_RECORD_PATH: "${RESULT_DIR}/time_record.csv"
+TEST_TIME_RECORD_PATH: "${RESULT_DIR}/test_time_record.csv"
+
+TEST_RESULT_PATH: "${RESULT_DIR}/test_result.json"
+ENABLE_VIZ: True
+VIZ_RESIZE_RATIO: 0.01
+VIZ_FOLDER: "${RESULT_DIR}/viz"
+VIZ_RAW_FOLDER: "${RESULT_DIR}/viz_raw"
+
+DEBUG_PATH: NULL
