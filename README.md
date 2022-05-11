@@ -3,6 +3,18 @@
 Another annotation-free whole-slide training approach to pathological classification.
 This repository provides scripts to reproduce the results in the paper "Deep neural network trained on gigapixel images improves lymph node metastasis detection in clinical settings", including model training, inference, visualization, and statistics calculation, etc.
 
+[>> **Demo Video** <<](https://youtu.be/-z2I0LK_6nc) | [**Journal Link**](https://www.nature.com/ncomms/) | [**Our Website**](https://www.aetherai.com/)
+
+[<img src="misc/demo.gif" align="center" />](https://youtu.be/-z2I0LK_6nc)
+
+## Publications
+
+(To be updated.)
+
+## License
+
+Copyright (C) 2021 aetherAI Co., Ltd. All rights reserved. Licensed under the CC BY-NC-SA 4.0 license (https://creativecommons.org/licenses/by-nc-sa/4.0/legalcode).
+
 ## Requirements
 
 ### Hardware Requirements
@@ -92,7 +104,7 @@ Given contour-level (e.g. LN-level) labels, construct the CSV files in:
 ```
 You can name each contour whatever you want.
 
-### (Optional) Contour Description Files
+#### (Optional) Contour Description Files
 
 For each contour, a contour description file in JSON should be composed with content like:
 ```

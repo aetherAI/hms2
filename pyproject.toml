@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "hms2"
-version = "1.3.0r"
+version = "1.3.1r"
 description = "Another annotation-free whole-slide training approach to pathological classification."
 license = "CC BY-NC-SA 4.0"
 authors = [ "Chi-Chung Chen <chenchc@aetherai.com>",]
