@@ -5,7 +5,7 @@ This repository provides scripts to reproduce the results in the paper "Deep neu
 
 [>> **Demo Video** <<](https://youtu.be/-z2I0LK_6nc) | [**Journal Link**](https://www.nature.com/ncomms/) | [**Our Website**](https://www.aetherai.com/)
 
-[<img src="misc/demo.gif" align="center" />](https://youtu.be/-z2I0LK_6nc)
+[<img src="misc/demo.gif" width=960 />](https://youtu.be/-z2I0LK_6nc)
 
 ## Publications
 
