@@ -3,9 +3,9 @@
 Another annotation-free whole-slide training approach to pathological classification.
 This repository provides scripts to reproduce the results in the paper "Deep neural network trained on gigapixel images improves lymph node metastasis detection in clinical settings", including model training, inference, visualization, and statistics calculation, etc.
 
-[>> **Demo Video** <<](https://youtu.be/-z2I0LK_6nc) | [**Journal Link**](https://www.nature.com/ncomms/) | [**Our Website**](https://www.aetherai.com/)
+[>> **Demo Video** <<](https://youtu.be/Kcx_d5nEUQ8) | [**Journal Link**](https://www.nature.com/ncomms/) | [**Our Website**](https://www.aetherai.com/)
 
-[<img src="misc/demo.gif" width=960 />](https://youtu.be/-z2I0LK_6nc)
+[<img src="misc/demo.gif" width=960 />](https://youtu.be/Kcx_d5nEUQ8)
 
 ## Publications
 
