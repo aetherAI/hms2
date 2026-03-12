@@ -1,0 +1,16 @@
+RESULT_DIR: projects/Camelyon16/results/20x
+
+RESIZE_RATIO:
+  target_pixel_spacing: 0.5
+
+NUM_CLASSES: 2
+CLASS_NAMES:
+  - benign
+  - malignant
+
+TRAIN_DATASET_CONFIGS:
+  - TRAIN_CSV_PATH: projects/Camelyon16/datalists/train.csv
+    VAL_CSV_PATH: projects/Camelyon16/datalists/val.csv
+    SLIDE_DIR: projects/Camelyon16/slides
+    SLIDE_FILE_EXTENSION: .tif
+    CONTOUR_DIR: projects/Camelyon16/contours

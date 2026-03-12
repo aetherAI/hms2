@@ -1,0 +1,7 @@
+TRAIN_CONFIG_PATH: projects/Camelyon16/train_configs/2.5x.yaml
+
+TEST_DATASET_CONFIGS:
+  - TEST_CSV_PATH: projects/Camelyon16/datalists/test.csv
+    SLIDE_DIR: projects/Camelyon16/slides
+    SLIDE_FILE_EXTENSION: .tif
+    CONTOUR_DIR: projects/Camelyon16/contours

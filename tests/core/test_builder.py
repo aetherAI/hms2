@@ -7,40 +7,46 @@ import torch
 from hms2.core.builder import Hms2ModelBuilder
 
 
-@pytest.fixture(autouse=True, scope="session")
+@pytest.fixture(autouse=True, scope='session')
 def set_up():
-    os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
-    torch.backends.cudnn.deterministic = True
+    os.environ['CUBLAS_WORKSPACE_CONFIG'] = ':4096:8'
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope='session')
 def n_classes():
     return 10
 
 
-@pytest.fixture(scope="session", params=["resnet50_frozenbn"])
+@pytest.fixture(scope='session', params=['resnet18_frozenbn', 'resnet50_frozenbn'])
 def backbone(request):
     return request.param
 
 
-@pytest.fixture(scope="session", params=["gmp", "gap"])
+@pytest.fixture(scope='session', params=['no', 'conv_1x1'])
+def pre_pooling(request):
+    return request.param
+
+
+@pytest.fixture(scope='session', params=['gmp', 'gap'])
 def pooling(request):
     return request.param
 
 
-@pytest.fixture(scope="session", params=[False, True])
+@pytest.fixture(scope='session', params=[False, True])
 def use_hms2(request):
     return request.param
 
 
-@pytest.fixture(scope="session", params=[None, ["flip", "rigid", "hed_perturb"]])
+@pytest.fixture(scope='session', params=[None, ['flip', 'rigid', 'hed_perturb']])
 def augmentation_list(request):
     return request.param
 
 
+@pytest.mark.skipif(not torch.cuda.is_available(), reason='No CUDA is available.')
 def test_hms2_model_builder_with_dry_run(
     n_classes,
     backbone,
+    pre_pooling,
     pooling,
     use_hms2,
     augmentation_list,
@@ -59,6 +65,7 @@ def test_hms2_model_builder_with_dry_run(
     model = Hms2ModelBuilder().build(
         n_classes=n_classes,
         backbone=backbone,
+        pre_pooling=pre_pooling,
         pooling=pooling,
         use_hms2=use_hms2,
         augmentation_list=augmentation_list,
@@ -69,9 +76,7 @@ def test_hms2_model_builder_with_dry_run(
     loss = torch.nn.CrossEntropyLoss()
 
     for _ in range(2):
-        input_batch = np.random.randint(
-            low=0, high=255, size=((1,) + image_size + (3,)), dtype=np.uint8
-        )
+        input_batch = np.random.randint(low=0, high=255, size=((1,) + image_size + (3,)), dtype=np.uint8)
         y_true_batch = np.random.randint(0, n_classes - 1, size=(1,), dtype=np.int64)
         input_batch = torch.tensor(input_batch)
         if not use_hms2:
@@ -88,6 +93,7 @@ def test_hms2_model_builder_with_dry_run(
         optimizer.zero_grad()
 
 
+@pytest.mark.skipif(not torch.cuda.is_available(), reason='No CUDA is available.')
 def test_hms2_model_builder_with_use_less_gpu_memory_budget(
     n_classes,
     backbone,
@@ -98,35 +104,33 @@ def test_hms2_model_builder_with_use_less_gpu_memory_budget(
     model_rich = Hms2ModelBuilder().build(
         n_classes=n_classes,
         backbone=backbone,
-        pooling="gap",
+        pooling='gap',
         use_hms2=True,
         gpu_memory_budget=32.0,
     )
     model_poor = Hms2ModelBuilder().build(
         n_classes=n_classes,
         backbone=backbone,
-        pooling="gap",
+        pooling='gap',
         use_hms2=True,
         gpu_memory_budget=16.0,
     )
 
     # Run forward
-    input_batch = np.random.randint(
-        low=0, high=255, size=((1,) + image_size + (3,)), dtype=np.uint8
-    )
+    input_batch = np.random.randint(low=0, high=255, size=((1,) + image_size + (3,)), dtype=np.uint8)
     input_batch = torch.tensor(input_batch)
 
     y_pred_batch_rich = model_rich(input_batch)
     y_pred_batch_poor = model_poor(input_batch)
 
-    assert y_pred_batch_poor.detach().cpu().numpy() == pytest.approx(
-        y_pred_batch_rich.detach().cpu().numpy(), abs=1.0
-    )
+    assert y_pred_batch_poor.detach().cpu().numpy() == pytest.approx(y_pred_batch_rich.detach().cpu().numpy(), abs=1.0)
 
 
+@pytest.mark.skipif(not torch.cuda.is_available(), reason='No CUDA is available.')
 def test_hms2_model_builder_with_cam(
     n_classes,
     backbone,
+    pre_pooling,
     use_hms2,
 ):
     # Set larger image size for HMS2
@@ -139,15 +143,14 @@ def test_hms2_model_builder_with_cam(
     model = Hms2ModelBuilder().build(
         n_classes=n_classes,
         backbone=backbone,
-        pooling="cam",
+        pre_pooling=pre_pooling,
+        pooling='cam',
         use_hms2=use_hms2,
     )
 
     # Dry-run
     for _ in range(2):
-        input_batch = np.random.randint(
-            low=0, high=255, size=((1,) + image_size + (3,)), dtype=np.uint8
-        )
+        input_batch = np.random.randint(low=0, high=255, size=((1,) + image_size + (3,)), dtype=np.uint8)
         input_batch = torch.tensor(input_batch)
         if not use_hms2:
             # If HMS2 is disabled, the input should be manually moved to GPU.
@@ -160,6 +163,7 @@ def test_hms2_model_builder_with_cam(
         assert cam.size()[3] == n_classes
 
 
+@pytest.mark.skipif(not torch.cuda.is_available(), reason='No CUDA is available.')
 def test_hms2_model_builder_with_emb(
     n_classes,
     backbone,
@@ -171,20 +175,26 @@ def test_hms2_model_builder_with_emb(
     else:
         image_size = (2000, 2000)
 
+    # Channels of embeddings
+    if backbone == 'resnet18_frozenbn':
+        emb_channels = 512
+    elif backbone == 'resnet50_frozenbn':
+        emb_channels = 2048
+    else:
+        raise ValueError(f'Unkonwn backbone: {backbone}')
+
     # Build a model
     model = Hms2ModelBuilder().build(
         n_classes=n_classes,
         backbone=backbone,
-        pooling="no",
-        custom_dense="no",
+        pooling='no',
+        custom_dense='no',
         use_hms2=use_hms2,
     )
 
     # Dry-run
     for _ in range(2):
-        input_batch = np.random.randint(
-            low=0, high=255, size=((1,) + image_size + (3,)), dtype=np.uint8
-        )
+        input_batch = np.random.randint(low=0, high=255, size=((1,) + image_size + (3,)), dtype=np.uint8)
         input_batch = torch.tensor(input_batch)
         if not use_hms2:
             # If HMS2 is disabled, the input should be manually moved to GPU.
@@ -192,6 +202,33 @@ def test_hms2_model_builder_with_emb(
 
         emb = model(input_batch)
         assert emb.size()[0] == 1
-        assert emb.size()[1] == 2048
+        assert emb.size()[1] == emb_channels
         assert emb.size()[2] > 1
         assert emb.size()[3] > 1
+
+
+@pytest.mark.skipif(not torch.cuda.is_available(), reason='No CUDA is available.')
+def test_hms2_model_builder_build_embedding(
+    n_classes,
+    backbone,
+    pre_pooling,
+    pooling,
+):
+    model = Hms2ModelBuilder().build_embedding(
+        n_classes=n_classes,
+        backbone=backbone,
+        pre_pooling=pre_pooling,
+        pooling=pooling,
+    )
+    if backbone == 'resnet18_frozenbn':
+        emb_channels = 512
+    elif backbone == 'resnet50_frozenbn':
+        emb_channels = 2048
+    else:
+        raise ValueError(f'Unkonwn backbone: {backbone}')
+
+    feature_size = (1, emb_channels, 1, 256 * 256)
+    input_batch = torch.randn(*feature_size)
+    input_dict = {'embed': input_batch}
+    y_pred_batch = model.forward_embedding(input_dict)
+    assert y_pred_batch.size() == (1, n_classes)
